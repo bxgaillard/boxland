@@ -1,0 +1,34 @@
+Boxland is an small object-oriented programming project originally written by
+two French students.
+
+It was not intented to be publicly released, so we paid no attention to
+internationalization.  The program is therefore entirely in French, including
+comments in C++ code.  However, all identifiers (variables, functions,
+constants, etc.) are in plain English.
+
+Even if you don't understand French, you should manage to play very easily.
+Here is a translation of the main screen instructions:
+    In the game, use the arrow keys or the numeric pad to move the character.
+    Pause: space or P. -- Cancel the last move: backspace or U.
+    Restart the level: R. -- Quit the menu or the level: escape or Q.
+
+And here are translations of some text elements:
+    French           English
+    --------------------------------
+    Nouvelle partie  New Game
+    Niveau           Level
+    Entrée           Enter
+    Records          Best Scores
+    Temps            Time
+    Déplacements     Moves
+    Bravo !          Great!
+    Félicitations !  Congratulations!
+    Le jeu est fini. The game is finished.
+
+Beside, playing to our game and reading its documentation will help you
+improve your French skills! Isn't that wonderful? ;)
+
+For more informations, and if you understand our rather difficult language,
+you can take a look to our report in the "report-fr" directory.
+
+Thank you for your interrest in Boxland!  We hope you'll enjoy our small game.
