@@ -34,16 +34,41 @@
  * En-têtes
  */
 
+// Configuration
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 // STL
+#include <string>
 #include <iostream>
 #include <vector>
 
 // Bibliothèque C standard
 #include <cstdio>
-#include <cstring>
-#include <dirent.h>
+#ifdef STDC_HEADERS
+# include <cstring>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
+
+// #include <dirent.h>
+#if HAVE_DIRENT_H
+# include <dirent.h>
+# define NAMLEN(dirent) strlen((dirent)->d_name)
+#else
+# define dirent direct
+# define NAMLEN(dirent) (dirent)->d_namlen
+# if HAVE_SYS_NDIR_H
+#  include <sys/ndir.h>
+# endif
+# if HAVE_SYS_DIR_H
+#  include <sys/dir.h>
+# endif
+# if HAVE_NDIR_H
+#  include <ndir.h>
+# endif
+#endif
 
 // gdkmm
 #include <gtkmm/main.h>
@@ -52,9 +77,24 @@
 #include <gdk/gdkkeysyms.h>
 
 // Module courant
-#include "config.h"
 #include "Board.h"
 #include "Menu.h"
+
+
+/*
+ * Paramètres de configuration
+ */
+
+// Répertoire de base pour les données
+#ifndef DATA_BASE_DIR
+# define DATA_BASE_DIR
+#endif
+
+// Répertoire contenant les images, sans "/" final
+#define IMAGE_DIR DATA_BASE_DIR "images"
+
+// Répertoire contenant les niveaux, sans "/" final
+#define LEVEL_DIR DATA_BASE_DIR "levels"
 
 
 /*
@@ -150,7 +190,7 @@ void Menu::OnKeyPressed(unsigned int key)
 	    DrawInformations();
 	}
 	break;
-    
+
     case GDK_Up:
     case GDK_Left:
     case GDK_KP_Up:
@@ -164,7 +204,7 @@ void Menu::OnKeyPressed(unsigned int key)
 	    DrawInformations();
 	}
 	break;
-	
+
     case GDK_Return:
     case GDK_space:
     case GDK_KP_Enter:
@@ -209,7 +249,10 @@ bool Menu::LoadLevels()
 	// Ajoute le fichier si c'est un fichier normal
 	if ((ent->d_name[0] != '.')
 	    && stat(name.c_str(), &statbuf) == 0
-	    && S_ISREG(statbuf.st_mode))
+#ifndef STAT_MACROS_BROKEN
+	    && S_ISREG(statbuf.st_mode)
+#endif
+	   )
 	    levels.push_back(name);
     }
 
@@ -220,8 +263,15 @@ bool Menu::LoadLevels()
     if (levels.size() != 0) {
 	moves = new unsigned int[levels.size()];
 	times = new unsigned int[levels.size()];
+#ifdef HAVE_MEMSET
 	memset(moves, 0, levels.size() * sizeof(int));
 	memset(times, 0, levels.size() * sizeof(int));
+#else
+	for (int i = 0; i < levels.size(); i++)
+	    moves[i] = 0;
+	for (int i = 0; i < levels.size(); i++)
+	    times[i] = 0;
+#endif
     }
 
     return true;
@@ -243,23 +293,23 @@ void Menu::DrawInformations()
 
     // Niveau sélectionné
     if (levels.size() > 0)
-	sprintf(buffer, "%d/%d", level + 1, levels.size());
+	std::sprintf(buffer, "%d/%d", level + 1, levels.size());
     else
-	strcpy(buffer, "-");
+	std::strcpy(buffer, "-");
     DrawText(Point(524, 108), buffer);
 
     // Meilleur temps
     if (levels.size() > 0 && moves[level] > 0)
-	sprintf(buffer, "%d s", times[level]);
+	std::sprintf(buffer, "%d s", times[level]);
     else
-	strcpy(buffer, "-");
+	std::strcpy(buffer, "-");
     DrawText(Point(524, 254), buffer);
 
     // Meilleur nombre de déplacements
     if (levels.size() > 0 && moves[level] > 0)
-	sprintf(buffer, "%d", moves[level]);
+	std::sprintf(buffer, "%d", moves[level]);
     else
-	strcpy(buffer, "-");
+	std::strcpy(buffer, "-");
     DrawText(Point(524, 319), buffer);
 }
 

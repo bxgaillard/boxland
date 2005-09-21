@@ -34,13 +34,20 @@
  * En-têtes
  */
 
+// Configuration
+#ifdef HAVE_CONFIG_H
+# include <config.h>
+#endif
+
 // STL
 #include <fstream>
 #include <string>
 
 // Bibliothèque C standard
 #include <cstdio>
-#include <cstring>
+#ifdef STDC_HEADERS
+# include <cstring>
+#endif
 
 // gtkmm
 #include <gdkmm/pixbuf.h>
@@ -48,10 +55,22 @@
 #include <gdk/gdkkeysyms.h>
 
 // Module actuel
-#include "config.h"
 #include "Character.h"
 #include "Menu.h"
 #include "Board.h"
+
+
+/*
+ * Paramètres de configuration
+ */
+
+// Répertoire de base pour les données
+#ifndef DATA_BASE_DIR
+# define DATA_BASE_DIR
+#endif
+
+// Répertoire contenant les images, sans "/" final
+#define IMAGE_DIR DATA_BASE_DIR "images"
 
 
 /*
@@ -129,7 +148,7 @@ void Board::LoadImages()
 
     // Charge les images une par une
     for (unsigned int i = IMG_FIRST; i < IMG_COUNT; i++) {
-	sprintf(buffer, "images/%s.png", images_names[i]);
+	sprintf(buffer, IMAGE_DIR "/%s.png", images_names[i]);
 	images[i] = Gdk::Pixbuf::create_from_file(buffer);
     }
 }
@@ -147,7 +166,13 @@ bool Board::LoadMap(const std::string &fname)
 
     // Initialise les variables
     filename = fname;
+#ifdef HAVE_MEMSET
     memset(isBox, 0, sizeof(isBox));
+#else
+    for (unsigned int y = 0; y < MAX_MAP_HEIGHT; y++)
+	for (unsigned int x = 0; x < MAX_MAP_WIDTH; x++)
+	    isBox[y][x] = false;
+#endif
     width = 0;
     height = 0;
     remain = 0;
